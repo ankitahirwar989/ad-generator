@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adcraft — AI Ad Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">Adcraft</span>
+    </div>
+    <p class="brand-tag">Product details in, an ad concept out — edit further in Canva or Photoshop.</p>
+  </header>
+
+  <main class="workspace">
+
+    <section class="panel form-panel">
+      <form id="ad-form">
+
+        <div class="field">
+          <label for="product_name">
+            <svg class="label-icon" viewBox="0 0 16 16" fill="none"><path d="M2 8.5V3a1 1 0 0 1 1-1h5.5a1 1 0 0 1 .7.3l5 5a1 1 0 0 1 0 1.4l-5.5 5.5a1 1 0 0 1-1.4 0l-5-5A1 1 0 0 1 2 8.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="5.2" cy="5.2" r="0.9" fill="currentColor"/></svg>
+            Product name
+          </label>
+          <input type="text" id="product_name" placeholder="e.g. Bloomleaf Organic Face Cream" required />
+        </div>
+
+        <div class="field">
+          <label for="product_description">
+            <svg class="label-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.3 3.3l1.4 1.4M11.3 11.3l1.4 1.4M12.7 3.3l-1.4 1.4M4.7 11.3l-1.4 1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="8" r="2.3" stroke="currentColor" stroke-width="1.3"/></svg>
+            What is it, and what makes it worth buying?
+          </label>
+          <textarea id="product_description" rows="3" placeholder="e.g. A lightweight daily moisturizer made with cold-pressed aloe and no synthetic fragrance" required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="audience">
+            <svg class="label-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="2.6" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c0-2.8 2.5-4.5 5.5-4.5s5.5 1.7 5.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Who is this for?
+          </label>
+          <input type="text" id="audience" placeholder="e.g. Women 20–35 who prefer clean, minimal skincare" required />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="mood">
+              <svg class="label-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a6.5 6.5 0 1 0 0 13c.9 0 1.5-.6 1.5-1.4 0-.4-.15-.7-.4-1-.25-.3-.4-.6-.4-1 0-.8.65-1.4 1.4-1.4H11.5a3 3 0 0 0 3-3c0-3-2.9-5.2-6.5-5.2Z" stroke="currentColor" stroke-width="1.2"/><circle cx="4.7" cy="7" r=".8" fill="currentColor"/><circle cx="6.3" cy="4.5" r=".8" fill="currentColor"/><circle cx="9.7" cy="4.5" r=".8" fill="currentColor"/></svg>
+              Mood / style
+            </label>
+            <select id="mood">
+              <option value="modern and clean">Modern & clean</option>
+              <option value="bold and energetic">Bold & energetic</option>
+              <option value="warm and earthy">Warm & earthy</option>
+              <option value="luxury and minimal">Luxury & minimal</option>
+              <option value="playful and colorful">Playful & colorful</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="platform">
+              <svg class="label-icon" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="5" cy="6" r="1.1" stroke="currentColor" stroke-width="1.1"/><path d="M2 11.5l3.3-3.2c.4-.4 1-.4 1.4 0L9 10.5M8 10l1.8-1.7c.4-.4 1-.4 1.4 0L14 11.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Format
+            </label>
+            <select id="platform">
+              <option value="instagram_post">Instagram post (1:1)</option>
+              <option value="instagram_story">Instagram story (9:16)</option>
+              <option value="facebook_banner">Facebook banner (1200×628)</option>
+              <option value="youtube_thumbnail">YouTube thumbnail (16:9)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" id="generate-btn">
+          <span id="btn-label">Generate ad concept</span>
+        </button>
+
+        <p class="error-msg" id="error-msg"></p>
+      </form>
+    </section>
+
+    <section class="panel stage-panel">
+      <div class="stage" id="stage">
+        <div class="reg-mark tl"><svg viewBox="0 0 18 18"><path d="M9 0v6M9 12v6M0 9h6M12 9h18" stroke="#63646B" stroke-width="1"/></svg></div>
+        <div class="reg-mark tr"><svg viewBox="0 0 18 18"><path d="M9 0v6M9 12v6M0 9h6M12 9h18" stroke="#63646B" stroke-width="1"/></svg></div>
+        <div class="reg-mark bl"><svg viewBox="0 0 18 18"><path d="M9 0v6M9 12v6M0 9h6M12 9h18" stroke="#63646B" stroke-width="1"/></svg></div>
+        <div class="reg-mark br"><svg viewBox="0 0 18 18"><path d="M9 0v6M9 12v6M0 9h6M12 9h18" stroke="#63646B" stroke-width="1"/></svg></div>
+
+        <div class="stage-empty" id="stage-empty">
+          <div class="stage-empty-icon">
+            <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1.5" y="5.5" width="31" height="23" rx="3" stroke="#C9C8BB" stroke-width="1.5"/>
+              <circle cx="10.5" cy="13" r="2.5" stroke="#A97E1E" stroke-width="1.5"/>
+              <path d="M1.5 23L11 15.5C11.7 14.9 12.7 14.9 13.4 15.5L20 21" stroke="#C9C8BB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 23L23.5 17.5C24.2 16.9 25.2 16.9 25.9 17.5L32.5 23.5" stroke="#C9C8BB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p>Fill in the product details and your ad will take shape here.</p>
+        </div>
+
+        <div class="stage-loading" id="stage-loading" hidden>
+          <div class="spinner"></div>
+          <p id="loading-text">Writing the copy…</p>
+        </div>
+
+        <div class="stage-result" id="stage-result" hidden>
+          <img id="result-image" alt="Generated advertisement" />
+        </div>
+      </div>
+
+      <div class="stage-footer" id="stage-footer" hidden>
+        <div class="meta">
+          <span class="meta-tagline" id="meta-tagline"></span>
+          <span class="meta-cta" id="meta-cta"></span>
+        </div>
+        <button id="download-btn">Download PNG</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
