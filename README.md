@@ -1,94 +1,199 @@
 # Adcraft — AI-Assisted Digital Advertisement Generator
 
-Yeh project user se **product info + target audience + ad requirements** leta hai, aur AI se
-**tagline, ad copy, color palette, aur ek generated visual** bana ke ek ready ad concept deta hai
-(jise aage Canva/Photoshop me edit kiya ja sakta hai).
+Adcraft is an AI-powered tool that turns basic product information into a ready-to-use digital
+advertisement. Given a product name, description, target audience, and desired mood/format, the
+system generates ad copy, a color palette, and an AI-generated visual, then composes them into a
+single downloadable ad concept — ready for further refinement in Canva or Photoshop.
 
-Yeh version **poori tarah free stack** use karta hai — koi paid API key nahi chahiye.
+Built entirely on **free-tier APIs**, so it can be run and demoed without any paid subscription.
 
-## Kaise kaam karta hai (architecture)
+---
 
-```
-Frontend form (index.html)
-        │  product info, audience, mood, platform
-        ▼
-Backend /api/generate-ad (Flask, app.py)
-        │
-        ├─► Google Gemini (gemini-2.5-flash, FREE)  → tagline, subtext, CTA, color palette, image prompt
-        │
-        ├─► Pollinations.ai (FREE, no API key)      → background/product visual
-        │
-        └─► Pillow                                  → text + colors ko image ke upar overlay karke
-                                                          final ad compose karta hai
-        ▼
-Frontend: final ad image dikhata hai + "Download PNG" button
-```
+## Features
 
-## Folder structure
+- **AI copywriting** — generates a tagline, supporting subtext, and a call-to-action tailored to the product and audience
+- **AI image generation** — produces a relevant background/product visual based on an auto-generated image prompt
+- **Automated layout composition** — overlays text, a color-matched CTA button, and a readability scrim onto the generated image using Pillow
+- **Multiple ad formats** — Instagram post (1:1), Instagram story (9:16), Facebook banner, YouTube thumbnail
+- **One-click export** — download the final composed ad as a PNG
 
-```
+---
+
+## Tech Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| Frontend | HTML, CSS, JavaScript | Form UI and result display |
+| Backend | Python (Flask) | REST API, orchestrates AI calls and image processing |
+| Text generation | Google Gemini API (`gemini-3.6-flash`, free tier) | Generates tagline, subtext, CTA, color palette, and image prompt as structured JSON |
+| Image generation | Pollinations.ai (free, no API key) | Generates the background/product visual from a text prompt |
+| Image compositing | Pillow (PIL) | Overlays text and CTA button onto the generated image |
+| Config | python-dotenv | Loads the Gemini API key from a local `.env` file |
+
+---
+
+## Architecture
+
+┌─────────────────────┐
+│ Frontend (browser) │
+│ index.html / .js │
+└──────────┬───────────┘
+│ POST /api/generate-ad
+│ { product_name, product_description, audience, mood, platform }
+▼
+┌─────────────────────────────────────────────┐
+│ Backend — Flask (app.py) │
+│ │
+│ 1. generate_ad_content() │
+│ → calls Gemini, returns JSON: │
+│ tagline, subtext, cta, palette, │
+│ text_position, image_prompt │
+│ │
+│ 2. generate_background_image() │
+│ → calls Pollinations.ai with image_prompt│
+│ returns a PIL Image │
+│ │
+│ 3. compose_ad() │
+│ → overlays tagline/subtext/CTA + scrim │
+│ onto the image using Pillow │
+└──────────────────┬────────────────────────────┘
+│ { image_base64, tagline, subtext, cta, palette, ... }
+▼
+┌─────────────────────┐
+│ Frontend renders │
+│ the final ad + a │
+│ "Download PNG" button│
+└─────────────────────┘
+
+
+---
+
+## Project Structure
+
 ad-generator/
+├── README.md
+├── .gitignore
 ├── backend/
-│   ├── app.py              ← Flask server + AI calls + image composition
-│   ├── requirements.txt
-│   ├── .env.example        ← isse .env banao aur API key daalo
-│   └── fonts/               ← DejaVu Sans (bundled, so text overlay hamesha kaam kare)
+│ ├── app.py # Flask app: routes, Gemini + Pollinations calls, image composition
+│ ├── requirements.txt # Python dependencies
+│ ├── .env.example # Template for the Gemini API key
+│ └── fonts/
+│ ├── DejaVuSans.ttf
+│ └── DejaVuSans-Bold.ttf
 └── frontend/
-    ├── index.html
-    ├── style.css
-    └── script.js
-```
+├── index.html
+├── style.css
+└── script.js
 
-## Setup — Step by Step
 
-### 1. Gemini API key lo (FREE)
-[aistudio.google.com/apikey](https://aistudio.google.com/apikey) pe jaake Google account se login karo,
-"Create API key" click karo. Koi credit card ya billing nahi chahiye — free tier turant milta hai.
+---
 
-Image generation ke liye **Pollinations.ai** use ho raha hai — usme koi API key hi nahi chahiye.
+## Getting Started
 
-### 2. Backend setup
+### Prerequisites
+- Python 3.10+
+- A free Gemini API key
+
+### 1. Get a Gemini API key (free)
+
+Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey), sign in with a Google
+account, and click **Create API key**. No billing or credit card is required for the free tier.
+
+Image generation uses Pollinations.ai, which requires no API key at all.
+
+### 2. Set up the backend
 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate      # Windows par: venv\Scripts\activate
+source venv/bin/activate      # Windows: venv\Scripts\activate
 
 pip install -r requirements.txt
 
 cp .env.example .env
-# .env file kholo aur GEMINI_API_KEY=your_key_here me apni real key daalo
+# open .env and set: GEMINI_API_KEY=your_key_here
 
 python app.py
 ```
 
-Backend `http://localhost:5000` pe chalega.
+The backend runs at `http://localhost:5000`.
 
-### 3. Frontend kholo
+### 3. Run the frontend
 
-`frontend/index.html` file ko directly browser me open karo (double-click karo, ya
-right-click → Open with Browser). Form fill karo aur "Generate ad concept" click karo.
+Open `frontend/index.html` directly in a browser (double-click it, or right-click →
+Open with Browser), fill in the form, and click **Generate ad concept**.
 
-> Agar tum backend ko kisi doosre port/host pe chala rahe ho, to `frontend/script.js`
-> ke top pe `API_BASE` variable update kar dena.
+> If the backend runs on a different host/port, update the `API_BASE` constant at the
+> top of `frontend/script.js`.
 
-## Kaise use karo (example)
+---
+
+## API Reference
+
+### `POST /api/generate-ad`
+
+**Request body:**
+
+```json
+{
+  "product_name": "Bloomleaf Organic Face Cream",
+  "product_description": "Lightweight daily moisturizer made with cold-pressed aloe and no synthetic fragrance",
+  "audience": "Women 20–35 who prefer clean, minimal skincare",
+  "mood": "luxury and minimal",
+  "platform": "instagram_post"
+}
+```
+
+`platform` accepts: `instagram_post`, `instagram_story`, `facebook_banner`, `youtube_thumbnail`
+
+**Response (200):**
+
+```json
+{
+  "image_base64": "data:image/png;base64,...",
+  "tagline": "Glow Naturally, Every Day",
+  "subtext": "Lightweight hydration made from cold-pressed aloe.",
+  "cta": "Shop Now",
+  "palette": { "primary": "#...", "secondary": "#...", "text_on_image": "#..." },
+  "text_position": "bottom",
+  "platform": "instagram_post",
+  "generated_at": "2026-09-13T10:00:00.000000"
+}
+```
+
+**Error (400/500):**
+
+```json
+{ "error": "description of what went wrong" }
+```
+
+---
+
+## Example Input
 
 | Field | Example value |
 |---|---|
 | Product name | Bloomleaf Organic Face Cream |
 | Description | Lightweight daily moisturizer, cold-pressed aloe, no synthetic fragrance |
-| Audience | Women 20–35 jo clean, minimal skincare pasand karti hain |
+| Audience | Women 20–35 who prefer clean, minimal skincare |
 | Mood | Luxury & minimal |
 | Format | Instagram post (1:1) |
 
-Result: ek complete ad — background visual + tagline + supporting line + CTA button, sab
-generated aur ek hi PNG me composed. "Download PNG" se save karke Canva/Photoshop me
-aage edit kar sakte ho.
+Output: a fully composed ad — background visual, tagline, supporting line, and CTA button, all
+in a single downloadable PNG.
 
-## Aage kya improve kar sakte ho (project report ke liye extra points)
+---
 
-- Multiple layout variations ek saath generate karna (user 3 options me se choose kare)
-- User ko apna brand color/logo upload karne dena
-- Generated ad history save karna (SQLite database)
-- Agar image quality aur better chahiye to Stability AI ka free trial credit try kar sakte ho
+## Roadmap
+
+- [ ] User authentication (login/signup) with saved ad history
+- [ ] Multiple layout variations generated per request, with user selection
+- [ ] Custom brand color and logo upload
+- [ ] Optional Stable Diffusion / Stability AI backend for higher image quality
+- [ ] Persistent storage (SQLite) for generated ads
+
+---
+
+## License
+
+This project was built for academic purposes as part of a coursework assignment.
